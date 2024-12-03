@@ -16,6 +16,10 @@
         <input type="datetime-local" id="end_time" name="end_time" required>
         <br><br>
 
+        <label for="trip_distance">Distância (km):</label>
+        <input type="number" id="trip_distance" name="trip_distance" step="0.1" required>
+        <br><br>
+
         <button type="submit">Calcular</button>
     </form>
 
@@ -23,25 +27,31 @@
     <div id="result"></div>
 
     <script>
+        // Adicionando o evento para o formulário
         document.getElementById('taxiForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
+            event.preventDefault();  // Impede o envio do formulário de forma tradicional
 
+            // Pegando os dados inseridos pelo usuário
             const start_time = document.getElementById('start_time').value;
             const end_time = document.getElementById('end_time').value;
+            const trip_distance = parseFloat(document.getElementById('trip_distance').value); // Convertendo para número
 
+            // Enviar os dados para a API Flask
             try {
                 const response = await fetch('http://127.0.0.1:5000/calculate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ start_time, end_time })
+                    body: JSON.stringify({ start_time, end_time, trip_distance })  // Enviando os dados no formato JSON
                 });
 
+                // Verificando se a resposta foi bem-sucedida
                 if (!response.ok) {
                     const result = await response.json();
                     document.getElementById('result').innerHTML = `<p>Erro: ${result.error}</p>`;
                     return;
                 }
 
+                // Extraindo o resultado da resposta
                 const result = await response.json();
                 
                 // Exibe o resultado no HTML
@@ -50,6 +60,7 @@
                     <p>Preço Estimado: R$${result.fare_estimate}</p>
                 `;
             } catch (error) {
+                // Caso haja erro de conexão
                 document.getElementById('result').innerHTML = `<p>Erro ao conectar com a API: ${error.message}</p>`;
             }
         });
