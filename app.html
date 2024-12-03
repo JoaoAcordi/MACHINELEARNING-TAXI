@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taxi Fare Calculator</title>
+</head>
+<body>
+    <h1>Calculadora de Corridas de Táxi</h1>
+    <form id="taxiForm">
+        <label for="start_time">Início da Viagem:</label>
+        <input type="datetime-local" id="start_time" name="start_time" required>
+        <br><br>
+
+        <label for="end_time">Fim da Viagem:</label>
+        <input type="datetime-local" id="end_time" name="end_time" required>
+        <br><br>
+
+        <button type="submit">Calcular</button>
+    </form>
+
+    <h2>Resultado</h2>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('taxiForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const start_time = document.getElementById('start_time').value;
+            const end_time = document.getElementById('end_time').value;
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/calculate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ start_time, end_time })
+                });
+
+                if (!response.ok) {
+                    const result = await response.json();
+                    document.getElementById('result').innerHTML = `<p>Erro: ${result.error}</p>`;
+                    return;
+                }
+
+                const result = await response.json();
+                
+                // Exibe o resultado no HTML
+                document.getElementById('result').innerHTML = `
+                    <p>Tempo Decorrido: ${result.trip_duration}</p>
+                    <p>Preço Estimado: R$${result.fare_estimate}</p>
+                `;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<p>Erro ao conectar com a API: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
