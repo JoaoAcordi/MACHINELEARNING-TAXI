@@ -4,54 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Taxi Fare Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f9;
+        }
+        #container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            padding: 20px;
+            text-align: center;
+            width: 90%;
+        }
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            margin: 10px 0 5px;
+            color: #555;
+        }
+        input[type="datetime-local"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #007bff;
+            color: #fff;
+            padding: 10px 15px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        h2 {
+            font-size: 18px;
+            color: #333;
+            margin-top: 20px;
+        }
+        #result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: #333;
+        }
+        p {
+            font-size: 14px;
+            margin: 5px 0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Calculadora de Corridas de Táxi</h1>
-    <form id="taxiForm">
-        <label for="start_time">Início da Viagem:</label>
-        <input type="datetime-local" id="start_time" name="start_time" required>
-        <br><br>
+    <div id="container">
+        <h1>Calculadora de Corridas de Táxi</h1>
+        <form id="taxiForm">
+            <label for="start_time">Início da Viagem:</label>
+            <input type="datetime-local" id="start_time" name="start_time" required>
+            
+            <label for="end_time">Fim da Viagem:</label>
+            <input type="datetime-local" id="end_time" name="end_time" required>
+            
+            <button type="submit">Calcular</button>
+        </form>
 
-        <label for="end_time">Fim da Viagem:</label>
-        <input type="datetime-local" id="end_time" name="end_time" required>
-        <br><br>
-
-        <label for="trip_distance">Distância (km):</label>
-        <input type="number" id="trip_distance" name="trip_distance" step="0.1" required>
-        <br><br>
-
-        <button type="submit">Calcular</button>
-    </form>
-
-    <h2>Resultado</h2>
-    <div id="result"></div>
+        <h2>Resultado</h2>
+        <div id="result"></div>
+    </div>
 
     <script>
-        // Adicionando o evento para o formulário
         document.getElementById('taxiForm').addEventListener('submit', async function(event) {
-            event.preventDefault();  // Impede o envio do formulário de forma tradicional
+            event.preventDefault();
 
-            // Pegando os dados inseridos pelo usuário
             const start_time = document.getElementById('start_time').value;
             const end_time = document.getElementById('end_time').value;
-            const trip_distance = parseFloat(document.getElementById('trip_distance').value); // Convertendo para número
 
-            // Enviar os dados para a API Flask
             try {
                 const response = await fetch('http://127.0.0.1:5000/calculate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ start_time, end_time, trip_distance })  // Enviando os dados no formato JSON
+                    body: JSON.stringify({ start_time, end_time })
                 });
 
-                // Verificando se a resposta foi bem-sucedida
                 if (!response.ok) {
                     const result = await response.json();
                     document.getElementById('result').innerHTML = `<p>Erro: ${result.error}</p>`;
                     return;
                 }
 
-                // Extraindo o resultado da resposta
                 const result = await response.json();
                 
                 // Exibe o resultado no HTML
@@ -60,7 +121,6 @@
                     <p>Preço Estimado: R$${result.fare_estimate}</p>
                 `;
             } catch (error) {
-                // Caso haja erro de conexão
                 document.getElementById('result').innerHTML = `<p>Erro ao conectar com a API: ${error.message}</p>`;
             }
         });
